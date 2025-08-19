@@ -13,6 +13,9 @@ While Playwright is a great tool set up by Microsoft, I couldn't find any simple
 - Health checks included
 - Persistent volumes for screenshots, downloads, and output
 - Non-root user for security
+- **Full browser compatibility**: Chrome, Chromium, Firefox, WebKit
+- **Mobile browsing support**: iPhone, iPad, Android emulation
+- **Cross-platform testing**: Desktop and mobile viewports
 
 ## Quick Start
 
