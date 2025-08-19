@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y \
     libgbm1 \
     libxss1 \
     libgtkd-3-0 \
+    curl \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user with home directory
@@ -28,7 +30,9 @@ RUN npm install -g @playwright/mcp@latest
 
 # Install Playwright browsers
 RUN npx playwright install chromium
+RUN npx playwright install chrome
 RUN npx playwright install-deps chromium
+RUN npx playwright install-deps chrome
 
 # Change ownership of the app directory and home directory
 RUN chown -R playwright:playwright /app
