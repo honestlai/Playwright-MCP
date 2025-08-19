@@ -3,9 +3,9 @@ version: '3.8'
 services:
   playwright-mcp:
     build: .
-    container_name: playwright-mcp-server
+    container_name: Playwright-MCP
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       - NODE_ENV=production
       - DISPLAY=:99
@@ -21,11 +21,11 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - playwright-network
-
+      Network-Bridge:
+      
 networks:
-  playwright-network:
-    driver: bridge
+    Network-Bridge:
+        external: true
 
 volumes:
   screenshots:
