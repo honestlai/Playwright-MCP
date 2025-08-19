@@ -38,15 +38,20 @@ RUN npx playwright install-deps chrome
 RUN chown -R playwright:playwright /app
 RUN chown -R playwright:playwright /home/playwright
 
+# Set environment variables for better browser session management
+ENV PLAYWRIGHT_BROWSERS_PATH=/home/playwright/.cache/ms-playwright
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0
+ENV PLAYWRIGHT_ISOLATED_BROWSER=1
+
 # Switch to non-root user
 USER playwright
 
 # Expose the port
 EXPOSE 8080
 
-# Health check
+# Health check - check if the process is running instead of HTTP endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
+    CMD pgrep -f "mcp-server-playwright" || exit 1
 
 # Start the Playwright MCP server
-CMD ["mcp-server-playwright", "--port", "8080", "--host", "0.0.0.0", "--headless"]
+CMD ["mcp-server-playwright", "--port", "8080", "--host", "0.0.0.0", "--headless", "--isolated"]
