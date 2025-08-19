@@ -17,8 +17,8 @@ RUN apt-get update && apt-get install -y \
     libgtkd-3-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
-RUN groupadd -r playwright && useradd -r -g playwright -G audio,video playwright
+# Create a non-root user with home directory
+RUN groupadd -r playwright && useradd -r -m -g playwright -G audio,video playwright
 
 # Set working directory
 WORKDIR /app
@@ -30,8 +30,9 @@ RUN npm install -g @playwright/mcp@latest
 RUN npx playwright install chromium
 RUN npx playwright install-deps chromium
 
-# Change ownership of the app directory
+# Change ownership of the app directory and home directory
 RUN chown -R playwright:playwright /app
+RUN chown -R playwright:playwright /home/playwright
 
 # Switch to non-root user
 USER playwright
@@ -44,4 +45,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Start the Playwright MCP server
-CMD ["npx", "@playwright/mcp@latest", "--port", "8080", "--host", "0.0.0.0", "--headless"]
+CMD ["mcp-server-playwright", "--port", "8080", "--host", "0.0.0.0", "--headless"]
