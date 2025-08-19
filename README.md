@@ -21,11 +21,11 @@ While Playwright is a great tool set up by Microsoft, I couldn't find any simple
    docker-compose up -d
    ```
 
-2. The Playwright MCP server will be available at `http://localhost:8080`
+2. The Playwright MCP server will be available at `http://localhost:8081`
 
 ## Configuration
 
-The container is configured to only accept connections from localhost or containers on the local network for security. The port 8080 is exposed but bound to localhost only.
+The container is configured to only accept connections from localhost or containers on the local network for security. The port 8081 is exposed but bound to localhost only.
 
 ## Volumes
 
@@ -35,4 +35,4 @@ The container is configured to only accept connections from localhost or contain
 
 ## Health Check
 
-The container includes a health check that verifies the MCP server is responding on port 8080.
+The container includes a health check that verifies the MCP server is responding on port 8080 (internal).
