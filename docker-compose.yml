@@ -14,6 +14,10 @@ services:
       - downloads:/app/downloads
       - output:/app/output
     restart: unless-stopped
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_ADMIN
     healthcheck:
       test: ["CMD", "pgrep", "-f", "mcp-server-playwright"]
       interval: 30s

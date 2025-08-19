@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     libgtkd-3-0 \
     curl \
     unzip \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user with home directory
@@ -38,10 +39,21 @@ RUN npx playwright install-deps chrome
 RUN chown -R playwright:playwright /app
 RUN chown -R playwright:playwright /home/playwright
 
+# Fix Chrome sandbox permissions
+RUN if [ -f /opt/google/chrome/chrome-sandbox ]; then \
+        chmod 4755 /opt/google/chrome/chrome-sandbox; \
+    fi
+
 # Set environment variables for better browser session management
 ENV PLAYWRIGHT_BROWSERS_PATH=/home/playwright/.cache/ms-playwright
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0
 ENV PLAYWRIGHT_ISOLATED_BROWSER=1
+
+# Chrome-specific environment variables to fix permission issues
+ENV CHROME_DEVEL_SANDBOX=/usr/lib/chromium/chrome-sandbox
+ENV CHROME_NO_SANDBOX=1
+ENV CHROME_DISABLE_GPU=1
+ENV CHROME_DISABLE_DEV_SHM=1
 
 # Switch to non-root user
 USER playwright
