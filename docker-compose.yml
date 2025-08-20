@@ -9,23 +9,39 @@ services:
     environment:
       - NODE_ENV=production
       - DISPLAY=:99
+      - PLAYWRIGHT_BROWSERS_PATH=/home/playwright/.cache/ms-playwright
+      - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0
+      - PLAYWRIGHT_ISOLATED_BROWSER=1
+      - CHROME_NO_SANDBOX=1
+      - CHROME_DISABLE_GPU=1
+      - CHROME_DISABLE_DEV_SHM=1
     volumes:
       - screenshots:/app/screenshots
       - downloads:/app/downloads
       - output:/app/output
+      - browser_cache:/home/playwright/.cache/ms-playwright
     restart: unless-stopped
     security_opt:
       - seccomp:unconfined
     cap_add:
       - SYS_ADMIN
     healthcheck:
-      test: ["CMD", "pgrep", "-f", "mcp-server-playwright"]
+      test: ["CMD", "/app/healthcheck.sh"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     networks:
       Network-Bridge:
+    # Add resource limits to prevent memory issues
+    mem_limit: 4g
+    mem_reservation: 2g
+    # Add logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
       
 networks:
     Network-Bridge:
@@ -35,3 +51,4 @@ volumes:
   screenshots:
   downloads:
   output:
+  browser_cache:

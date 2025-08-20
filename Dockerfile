@@ -55,15 +55,19 @@ ENV CHROME_NO_SANDBOX=1
 ENV CHROME_DISABLE_GPU=1
 ENV CHROME_DISABLE_DEV_SHM=1
 
+# Copy health check script
+COPY --chown=playwright:playwright healthcheck.sh /app/healthcheck.sh
+RUN chmod +x /app/healthcheck.sh
+
 # Switch to non-root user
 USER playwright
 
 # Expose the port
 EXPOSE 8080
 
-# Health check - check if the process is running instead of HTTP endpoint
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD pgrep -f "mcp-server-playwright" || exit 1
+# Health check - check if the MCP endpoint is responding
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD /app/healthcheck.sh
 
 # Start the Playwright MCP server
 CMD ["mcp-server-playwright", "--port", "8080", "--host", "0.0.0.0", "--headless", "--isolated"]
