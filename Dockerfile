@@ -70,4 +70,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD /app/healthcheck.sh
 
 # Start the Playwright MCP server
-CMD ["mcp-server-playwright", "--port", "8080", "--host", "0.0.0.0", "--headless", "--isolated"]
+CMD ["npx", "@playwright/mcp@latest", "--port", "8080", "--host", "0.0.0.0", "--headless", "--isolated"]
