@@ -36,16 +36,9 @@ Use the command-based configuration below.
         "Playwright-MCP",
         "npx",
         "@playwright/mcp@latest",
-        "--port",
-        "8080",
-        "--host",
-        "0.0.0.0",
         "--headless",
         "--isolated"
-      ],
-      "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/playwright/.cache/ms-playwright"
-      }
+      ]
     }
   }
 }
@@ -74,16 +67,9 @@ Use the command-based configuration below.
         "Playwright-MCP",
         "npx",
         "@playwright/mcp@latest",
-        "--port",
-        "8080",
-        "--host",
-        "0.0.0.0",
         "--headless",
         "--isolated"
-      ],
-      "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/playwright/.cache/ms-playwright"
-      }
+      ]
     }
   }
 }
@@ -121,16 +107,9 @@ Use the command-based configuration below.
         "Playwright-MCP",
         "npx",
         "@playwright/mcp@latest",
-        "--port",
-        "8080",
-        "--host",
-        "0.0.0.0",
         "--headless",
         "--isolated"
-      ],
-      "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/playwright/.cache/ms-playwright"
-      }
+      ]
     }
   }
 }
@@ -164,12 +143,12 @@ Use the command-based configuration below.
 docker exec -i Playwright-MCP npx @playwright/mcp@latest --help
 
 # Test with specific arguments
-docker exec -i Playwright-MCP npx @playwright/mcp@latest --port 8080 --host 0.0.0.0 --headless --isolated
+docker exec -i Playwright-MCP npx @playwright/mcp@latest --headless --isolated
 ```
 
 Expected output:
 ```
-Usage: npx @playwright/mcp@latest [options]
+Usage: @playwright/mcp [options]
 
 Options:
   --port <port>           Port to listen on (default: 8080)
@@ -203,7 +182,7 @@ docker logs Playwright-MCP
 
 ### **Execution Flow**
 1. **VS Code Request**: VS Code needs to execute an MCP tool
-2. **Command Execution**: VS Code runs `docker exec -i Playwright-MCP npx @playwright/mcp@latest ...`
+2. **Command Execution**: VS Code runs `docker exec -i Playwright-MCP npx @playwright/mcp@latest --headless --isolated`
 3. **Fresh Process**: A new MCP server process starts in the container
 4. **Tool Execution**: The MCP tool executes and returns results
 5. **Process Cleanup**: The MCP server process terminates
@@ -283,7 +262,7 @@ docker logs Playwright-MCP
 #### **Test MCP Server**
 ```bash
 # Test MCP server directly
-docker exec -i Playwright-MCP npx @playwright/mcp@latest --port 8080 --host 0.0.0.0
+docker exec -i Playwright-MCP npx @playwright/mcp@latest --headless --isolated
 
 # Check MCP process
 docker exec Playwright-MCP ps aux | grep playwright
@@ -332,10 +311,6 @@ watch -n 10 'docker inspect --format="{{.State.Health.Status}}" Playwright-MCP'
         "Playwright-MCP",
         "npx",
         "@playwright/mcp@latest",
-        "--port",
-        "8080",
-        "--host",
-        "0.0.0.0",
         "--headless",
         "--isolated"
       ],
@@ -362,16 +337,9 @@ If your container has a different name:
         "your-container-name",
         "npx",
         "@playwright/mcp@latest",
-        "--port",
-        "8080",
-        "--host",
-        "0.0.0.0",
         "--headless",
         "--isolated"
-      ],
-      "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/playwright/.cache/ms-playwright"
-      }
+      ]
     }
   }
 }

@@ -45,16 +45,9 @@ Use the command-based configuration below.
         "Playwright-MCP",
         "npx",
         "@playwright/mcp@latest",
-        "--port",
-        "8080",
-        "--host",
-        "0.0.0.0",
         "--headless",
         "--isolated"
-      ],
-      "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/playwright/.cache/ms-playwright"
-      }
+      ]
     }
   }
 }
@@ -203,7 +196,7 @@ docker exec -it Playwright-MCP /bin/bash
 docker exec Playwright-MCP ps aux | grep playwright
 
 # Test MCP server directly
-docker exec -i Playwright-MCP npx @playwright/mcp@latest --port 8080 --host 0.0.0.0
+docker exec -i Playwright-MCP npx @playwright/mcp@latest --headless --isolated
 ```
 
 ## 📊 **Performance & Reliability**

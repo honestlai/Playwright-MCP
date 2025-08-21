@@ -8,16 +8,9 @@
         "Playwright-MCP",
         "npx",
         "@playwright/mcp@latest",
-        "--port",
-        "8080",
-        "--host",
-        "0.0.0.0",
         "--headless",
         "--isolated"
-      ],
-      "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/playwright/.cache/ms-playwright"
-      }
+      ]
     }
   }
 }
