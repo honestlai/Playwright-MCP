@@ -1,27 +1,23 @@
 {
   "mcpServers": {
     "Playwright_MCP": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-playwright"],
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "Playwright-MCP",
+        "npx",
+        "@playwright/mcp@latest",
+        "--port",
+        "8080",
+        "--host",
+        "0.0.0.0",
+        "--headless",
+        "--isolated"
+      ],
       "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "0"
-      },
-      "url": "http://localhost:8081/mcp",
-      "retryDelay": 500,
-      "maxRetries": 15,
-      "timeout": 45000,
-      "backoffMultiplier": 1.5,
-      "maxRetryDelay": 10000,
-      "connectionTimeout": 10000,
-      "keepAlive": true,
-      "retryOnTimeout": true,
-      "retryOnConnectionError": true,
-      "fallbackUrls": [
-        "http://localhost:8082/mcp",
-        "http://localhost:8083/mcp",
-        "http://localhost:8084/mcp",
-        "http://localhost:8085/mcp"
-      ]
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/playwright/.cache/ms-playwright"
+      }
     }
   }
 }

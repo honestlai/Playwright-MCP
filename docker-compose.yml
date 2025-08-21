@@ -1,15 +1,9 @@
-
-
 services:
   playwright-mcp:
     build: .
     container_name: Playwright-MCP
     ports:
-      - "127.0.0.1:8081:8080"  # Primary instance
-      - "127.0.0.1:8082:8081"  # Secondary instance
-      - "127.0.0.1:8083:8082"  # Tertiary instance
-      - "127.0.0.1:8084:8083"  # Quaternary instance
-      - "127.0.0.1:8085:8084"  # Quinary instance
+      - "127.0.0.1:8081:8080"
     environment:
       - NODE_ENV=production
       - DISPLAY=:99
@@ -24,7 +18,6 @@ services:
       - downloads:/app/downloads
       - output:/app/output
       - browser_cache:/home/playwright/.cache/ms-playwright
-      - logs:/app/logs
     restart: unless-stopped
     security_opt:
       - seccomp:unconfined
@@ -33,30 +26,27 @@ services:
     healthcheck:
       test: ["CMD", "/app/healthcheck.sh"]
       interval: 30s
-      timeout: 15s
+      timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 40s
     networks:
       Network-Bridge:
     # Add resource limits to prevent memory issues
-    mem_limit: 6g
-    mem_reservation: 3g
-    # Add logging configuration with better rotation
+    mem_limit: 4g
+    mem_reservation: 2g
+    # Add logging configuration
     logging:
       driver: "json-file"
       options:
-        max-size: "20m"
-        max-file: "5"
-        labels: "service=playwright-mcp"
-        env: "NODE_ENV"
-      
+        max-size: "10m"
+        max-file: "3"
+
 networks:
-    Network-Bridge:
-        external: true
+  Network-Bridge:
+    external: true
 
 volumes:
   screenshots:
   downloads:
   output:
   browser_cache:
-  logs:
