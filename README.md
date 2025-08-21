@@ -1,17 +1,13 @@
 # Playwright MCP Container
 
-A robust, production-ready Docker container for running Playwright MCP (Model Context Protocol) with **command-based execution** to eliminate SSH tunnel connection issues.
+A production-ready Docker container for running Playwright MCP (Model Context Protocol) with support for both HTTP and command-based execution modes.
 
-## 🎯 **Problem Solved**
+## 🎯 **Overview**
 
-**Original Issue**: Cursor/VS Code MCP connections dropping over SSH tunnels, causing red/green bubble cycling.
+This container provides a robust Playwright MCP server that can be used with VS Code, Cursor, and other MCP-compatible clients. It supports two connection modes:
 
-**Root Cause**: URL-based MCP connections (`"url": "http://localhost:8081/mcp"`) over SSH tunnels create multiple failure points:
-- Laptop → SSH tunnel → Cloudflare → server → Docker container → MCP server
-- SSE timeouts after 5 minutes of idle time
-- Persistent connections that can drop unexpectedly
-
-**Solution**: **Command-based MCP configuration** that executes the MCP server directly inside the container, eliminating HTTP timeouts and connection state issues.
+- **Command-based execution** (recommended for SSH/remote connections)
+- **HTTP-based connections** (suitable for local development)
 
 ## 🚀 **Quick Start**
 
@@ -26,13 +22,13 @@ docker ps
 ```
 
 ### **3. Configure Your MCP Client**
-Use the command-based configuration below.
+Choose the configuration that best fits your setup (see below).
 
 ## 📋 **MCP Client Configuration**
 
-### **Command-Based Configuration (Recommended)**
+### **Command-Based Configuration (Recommended for SSH/Remote)**
 
-**This eliminates SSH tunnel connection issues** by executing MCP directly in the container:
+Command-based execution is ideal when connecting over SSH tunnels or remote connections. It eliminates HTTP timeouts and connection state issues by executing the MCP server directly in the container for each interaction.
 
 ```json
 {
@@ -53,9 +49,15 @@ Use the command-based configuration below.
 }
 ```
 
-### **Alternative: Enhanced HTTP Configuration**
+**Benefits of Command-Based Mode:**
+- ✅ **No HTTP timeouts** - Each interaction is a fresh execution
+- ✅ **No persistent connections** - Eliminates connection drops
+- ✅ **SSH tunnel friendly** - Works reliably over remote connections
+- ✅ **No connection state issues** - Each request is independent
 
-If you prefer HTTP-based connections (less reliable over SSH):
+### **HTTP-Based Configuration (Suitable for Local Development)**
+
+HTTP-based connections are simpler to set up and work well for local development environments.
 
 ```json
 {
@@ -63,11 +65,8 @@ If you prefer HTTP-based connections (less reliable over SSH):
     "Playwright_MCP": {
       "url": "http://localhost:8081/mcp",
       "retryDelay": 1000,
-      "maxRetries": 20,
-      "timeout": 60000,
-      "backoffMultiplier": 2.0,
-      "maxRetryDelay": 15000,
-      "connectionTimeout": 15000,
+      "maxRetries": 10,
+      "timeout": 30000,
       "keepAlive": true,
       "retryOnTimeout": true,
       "retryOnConnectionError": true
@@ -98,32 +97,39 @@ docker ps
 
 ### **Health Check**
 ```bash
-# Test MCP endpoint
+# Test MCP endpoint (for HTTP mode)
 curl -v http://localhost:8081/mcp
 
 # Check container health
 docker inspect --format='{{.State.Health.Status}}' Playwright-MCP
+
+# Test command-based execution
+docker exec -i Playwright-MCP npx @playwright/mcp@latest --help
 ```
 
 ## 🏗️ **Architecture**
 
-### **Command-Based Approach (Recommended)**
+### **Command-Based Mode**
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   VS Code       │    │   SSH Tunnel    │    │   Docker        │
-│   / Cursor      │───▶│   (Cloudflare)  │───▶│   Container     │
+│   / Cursor      │───▶│   (Optional)    │───▶│   Container     │
 │                 │    │                 │    │                 │
 │ Command-based   │    │ No persistent   │    │ Direct MCP      │
 │ MCP execution   │    │ connections     │    │ execution       │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-### **Why Command-Based Works Better**
-- ✅ **No HTTP layer** to timeout
-- ✅ **No persistent connections** that can drop
-- ✅ **Fresh execution** for each MCP interaction
-- ✅ **Direct communication** with container
-- ✅ **Eliminates connection state issues**
+### **HTTP Mode**
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   VS Code       │    │   HTTP/SSE      │    │   Docker        │
+│   / Cursor      │───▶│   Connection    │───▶│   Container     │
+│                 │    │                 │    │                 │
+│ HTTP-based      │    │ Persistent      │    │ MCP HTTP        │
+│ MCP connection  │    │ connection      │    │ server          │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
 ## 🔍 **Monitoring & Troubleshooting**
 
@@ -185,7 +191,7 @@ docker exec -it Playwright-MCP whoami
 - Verify container is running: `docker ps`
 - Check MCP configuration syntax
 - Restart VS Code/Cursor after configuration changes
-- Ensure Docker is accessible from your SSH session
+- Ensure Docker is accessible from your environment
 
 ### **Debugging Commands**
 ```bash
@@ -199,15 +205,16 @@ docker exec Playwright-MCP ps aux | grep playwright
 docker exec -i Playwright-MCP npx @playwright/mcp@latest --headless --isolated
 ```
 
-## 📊 **Performance & Reliability**
+## 📊 **Connection Mode Comparison**
 
 | Feature | Command-Based | HTTP-Based |
 |---------|---------------|------------|
-| **SSH Stability** | ✅ Excellent | ⚠️ Problematic |
-| **Connection Drops** | ✅ None | ❌ Frequent |
-| **Timeout Issues** | ✅ None | ❌ Common |
+| **SSH/Remote Stability** | ✅ Excellent | ⚠️ May have issues |
+| **Connection Drops** | ✅ None | ⚠️ Possible |
+| **Timeout Issues** | ✅ None | ⚠️ May occur |
 | **Setup Complexity** | ⚠️ Moderate | ✅ Simple |
-| **Debugging** | ✅ Easy | ⚠️ Complex |
+| **Local Development** | ✅ Works | ✅ Works |
+| **Debugging** | ✅ Easy | ⚠️ Moderate |
 
 ## 🎯 **Getting Started**
 
@@ -216,7 +223,9 @@ docker exec -i Playwright-MCP npx @playwright/mcp@latest --headless --isolated
    docker compose up -d
    ```
 
-2. **Configure your MCP client** using the command-based configuration above
+2. **Choose your configuration**:
+   - Use **command-based** for SSH/remote connections
+   - Use **HTTP-based** for local development
 
 3. **Test the connection**:
    ```bash
