@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     procps \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user with home directory
@@ -32,42 +33,25 @@ RUN npm install -g @playwright/mcp@latest
 # Install Playwright browsers
 RUN npx playwright install chromium
 RUN npx playwright install chrome
-RUN npx playwright install-deps chromium
-RUN npx playwright install-deps chrome
+RUN npx playwright install-deps
 
-# Change ownership of the app directory and home directory
+# Create necessary directories
+RUN mkdir -p /app/screenshots /app/downloads /app/output /app/logs
 RUN chown -R playwright:playwright /app
-RUN chown -R playwright:playwright /home/playwright
 
-# Fix Chrome sandbox permissions
-RUN if [ -f /opt/google/chrome/chrome-sandbox ]; then \
-        chmod 4755 /opt/google/chrome/chrome-sandbox; \
-    fi
-
-# Set environment variables for better browser session management
-ENV PLAYWRIGHT_BROWSERS_PATH=/home/playwright/.cache/ms-playwright
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0
-ENV PLAYWRIGHT_ISOLATED_BROWSER=1
-
-# Chrome-specific environment variables to fix permission issues
-ENV CHROME_DEVEL_SANDBOX=/usr/lib/chromium/chrome-sandbox
-ENV CHROME_NO_SANDBOX=1
-ENV CHROME_DISABLE_GPU=1
-ENV CHROME_DISABLE_DEV_SHM=1
-
-# Copy health check script
-COPY --chown=playwright:playwright healthcheck.sh /app/healthcheck.sh
+# Copy healthcheck script
+COPY healthcheck.sh /app/healthcheck.sh
 RUN chmod +x /app/healthcheck.sh
 
-# Switch to non-root user
+# Switch to playwright user
 USER playwright
 
-# Expose the port
+# Expose port
 EXPOSE 8080
 
-# Health check - check if the MCP endpoint is responding
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD /app/healthcheck.sh
 
-# Start the Playwright MCP server
+# Start Playwright MCP server
 CMD ["npx", "@playwright/mcp@latest", "--port", "8080", "--host", "0.0.0.0", "--headless", "--isolated"]
